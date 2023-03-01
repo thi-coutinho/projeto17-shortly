@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid"
 import db from "../config/db.js"
 
-export default async function shortenUrl(req, res) {
+export async function shortenUrl(req, res) {
     const { url } = req.body
     const { userId } = res.locals.session
     const shortUrl = nanoid(8)
@@ -14,6 +14,39 @@ export default async function shortenUrl(req, res) {
         `, [url, shortUrl, userId])
         if (rowCount) return res.send({ id, shortUrl })
         else return res.status(500).send("erro ao inserir no banco de dados")
+    } catch (error) {
+        res.status(500).send(error)
+    }
+
+}
+
+export async function getUrl(req,res) {
+    const {id} = req.params
+
+    try {
+        const {rowCount, rows: [data,..._]} = await db.query(`
+        SELECT id, "shortUrl", url
+        FROM urls
+        WHERE id = $1
+        `,[id])
+        if (!rowCount) return res.sendStatus(404)
+        else return res.send(data)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+
+}
+
+export async function redirectShortUrl(req,res) {
+    const {shortUrl} = req.params
+    try {
+        const {rowCount, rows: [data,..._]} = await db.query(`
+        SELECT url
+        FROM urls
+        WHERE "shortUrl" = $1;
+        `,[shortUrl])
+        if (!rowCount) return res.sendStatus(404)
+        else return res.redirect(data.url)
     } catch (error) {
         res.status(500).send(error)
     }

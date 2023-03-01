@@ -31,7 +31,6 @@ export async function signIn(req, res) {
 
         const passwordCheck = bcrypt.compareSync(password, queryReturnData.password)
         if (!passwordCheck) return res.status(401).send("Incorrect email and/or password")
-        console.log(queryReturnData)
         const token = uuidV4()
         await db.query(`
         INSERT INTO sessions ("userId", token)
