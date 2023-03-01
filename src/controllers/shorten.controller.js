@@ -41,9 +41,10 @@ export async function redirectShortUrl(req,res) {
     const {shortUrl} = req.params
     try {
         const {rowCount, rows: [data,..._]} = await db.query(`
-        SELECT url
-        FROM urls
-        WHERE "shortUrl" = $1;
+        UPDATE urls
+        set "visitCount" = "visitCount" + 1
+        WHERE "shortUrl" = $1
+        RETURNING url;
         `,[shortUrl])
         if (!rowCount) return res.sendStatus(404)
         else return res.redirect(data.url)
