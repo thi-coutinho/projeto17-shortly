@@ -20,15 +20,15 @@ export async function shortenUrl(req, res) {
 
 }
 
-export async function getUrl(req,res) {
-    const {id} = req.params
+export async function getUrl(req, res) {
+    const { id } = req.params
 
     try {
-        const {rowCount, rows: [data,..._]} = await db.query(`
+        const { rowCount, rows: [data, ..._] } = await db.query(`
         SELECT id, "shortUrl", url
         FROM urls
         WHERE id = $1
-        `,[id])
+        `, [id])
         if (!rowCount) return res.sendStatus(404)
         else return res.send(data)
     } catch (error) {
@@ -37,15 +37,15 @@ export async function getUrl(req,res) {
 
 }
 
-export async function redirectShortUrl(req,res) {
-    const {shortUrl} = req.params
+export async function redirectShortUrl(req, res) {
+    const { shortUrl } = req.params
     try {
-        const {rowCount, rows: [data,..._]} = await db.query(`
+        const { rowCount, rows: [data, ..._] } = await db.query(`
         UPDATE urls
         set "visitCount" = "visitCount" + 1
         WHERE "shortUrl" = $1
         RETURNING url;
-        `,[shortUrl])
+        `, [shortUrl])
         if (!rowCount) return res.sendStatus(404)
         else return res.redirect(data.url)
     } catch (error) {
@@ -55,17 +55,15 @@ export async function redirectShortUrl(req,res) {
 }
 
 
-export async function deleteUrl(req,res) {
-    const {id} = req.params
+export async function deleteUrl(req, res) {
+    const { id } = req.params
 
     try {
-        const {rowCount, rows: [data,..._]} = await db.query(`
-        SELECT id, "shortUrl", url
-        FROM urls
-        WHERE id = $1
-        `,[id])
-        if (!rowCount) return res.sendStatus(404)
-        else return res.send(data)
+        await db.query(`
+        DELETE FROM urls
+        WHERE id = $1;
+        `, [id])
+        res.sendStatus(204)
     } catch (error) {
         res.status(500).send(error)
     }
