@@ -6,9 +6,9 @@ export async function authValidation(req, res, next) {
   if (!token) return res.status(401).send("Token is missing!")
 
   try {
-    const {rowCount:checkSession, rows: [{userId},..._]} = await db.query(`SELECT * FROM sessions WHERE token = $1;`,[token])
-    if (!checkSession) return res.status(401).send("Authorization required")
-    res.locals.session = {userId}
+    const {rowCount, rows: [userId,..._]} = await db.query(`SELECT "userId" FROM sessions WHERE token = $1;`,[token])
+    if (!rowCount) return res.status(401).send("Authorization required")
+    res.locals.session = userId
 
     next()
 
