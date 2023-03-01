@@ -12,7 +12,7 @@ export async function shortenUrl(req, res) {
         VALUES ($1 , $2, $3)
         RETURNING id
         `, [url, shortUrl, userId])
-        if (rowCount) return res.send({ id, shortUrl })
+        if (rowCount) return res.status(201).send({ id, shortUrl })
         else return res.status(500).send("erro ao inserir no banco de dados")
     } catch (error) {
         res.status(500).send(error)
@@ -52,4 +52,21 @@ export async function redirectShortUrl(req,res) {
         res.status(500).send(error)
     }
 
+}
+
+
+export async function deleteUrl(req,res) {
+    const {id} = req.params
+
+    try {
+        const {rowCount, rows: [data,..._]} = await db.query(`
+        SELECT id, "shortUrl", url
+        FROM urls
+        WHERE id = $1
+        `,[id])
+        if (!rowCount) return res.sendStatus(404)
+        else return res.send(data)
+    } catch (error) {
+        res.status(500).send(error)
+    }
 }
