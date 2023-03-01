@@ -3,7 +3,7 @@ import db from "../config/db.js"
 export async function getUserData(_, res) {
     const { userId } = res.locals.session
     try {
-        const { rowCount, rows: [{ json_build_object: data }, ..._] } = await db.query(`
+        const { rowCount, rows: [data, ..._] } = await db.query(`
         SELECT
         json_build_object(
             'id' , users.id,
@@ -24,8 +24,9 @@ export async function getUserData(_, res) {
         WHERE users.id = $1
         group by  users.id;
         `, [userId])
-        if(rowCount) res.send(data)
+        if (rowCount) res.send(data.json_build_object)
         else res.send({})
+        
     } catch (error) {
         res.status(500).send(error)
     }
