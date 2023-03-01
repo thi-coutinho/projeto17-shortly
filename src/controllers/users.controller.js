@@ -26,20 +26,20 @@ export async function getUserData(_, res) {
         `, [userId])
         if (rowCount) res.send(data.json_build_object)
         else res.send({})
-        
+
     } catch (error) {
         res.status(500).send(error)
     }
 }
 
 
-export async function getUsersRanking(_,res) {
+export async function getUsersRanking(_, res) {
     try {
-        const { rowCount, rows: data} = await db.query(`
+        const { rowCount, rows: data } = await db.query(`
         SELECT 
 	        users.id as "id",
 	        users.name as "name",
-	        COUNT(urls.*) as "linkCount",
+	        COUNT(urls.*) as "linksCount",
 	        COALESCE(SUM(urls."visitCount"),0) as "visitCount" 
 	    FROM urls
 	    RIGHT JOIN users
@@ -50,28 +50,8 @@ export async function getUsersRanking(_,res) {
         `)
         if (rowCount) res.send(data)
         else res.send({})
-        
+
     } catch (error) {
         res.status(500).send(error)
     }
 }
-
-// {
-//     "id": id do usuário,
-//       "name": nome do usuário,
-//       "visitCount": soma da quantidade de visitas de todos os links do usuário,
-//       "shortenedUrls": [
-//           {
-//               "id": 1,
-//               "shortUrl": "...",
-//               "url": "...",
-//               "visitCount": soma da quantidade de visitas do link
-//           },
-//           {
-//               "id": 2,
-//               "shortUrl": "...",
-//               "url": "...",
-//               "visitCount": soma da quantidade de visitas do link
-//           }
-//       ]
-//   }
